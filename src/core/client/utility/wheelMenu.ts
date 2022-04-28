@@ -8,7 +8,7 @@ import { handleFrontendSound } from '../systems/sound';
 import { getScaledCursorPosition } from './mouse';
 import { Timer } from './timers';
 import { WebViewController } from '../extensions/view2';
-import { IWheelItem } from '../../shared/interfaces/iWheelMenu';
+import { FullWheelItem, IClientWheelItem, IWheelMenu } from '../../shared/interfaces/iWheelMenu';
 import { SYSTEM_EVENTS } from '../../shared/enums/system';
 import { ClientInventoryView } from '../views/inventory';
 
@@ -16,25 +16,6 @@ let currentMenu: IWheelMenu = null;
 let nextClick = Date.now() + 250;
 let interval: number | undefined;
 let lastHover: number | null;
-
-export interface IClientWheelItem extends IWheelItem {
-    callback?: Function;
-}
-
-export interface IWheelMenu {
-    label: string;
-    points: Array<FullWheelItem>;
-    center: alt.IVector2;
-}
-
-interface FullWheelItem extends IClientWheelItem, Vector2 {
-    name?: string;
-    callback?: Function;
-    emitServer?: string;
-    emitClient?: string;
-    label?: string;
-    points?: Array<FullWheelItem>;
-}
 
 class InternalFunctions {
     /**
