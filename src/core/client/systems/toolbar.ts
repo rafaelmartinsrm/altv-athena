@@ -2,6 +2,8 @@ import * as alt from 'alt-client';
 import { KEY_BINDS } from '../../shared/enums/keyBinds';
 import { SYSTEM_EVENTS } from '../../shared/enums/system';
 import { KeybindController } from '../events/keyup';
+import { isFlagEnabled } from '../../shared/utility/flags';
+import { ITEM_TYPE } from '../../shared/enums/itemTypes';
 
 export class ToolbarController {
     /**
@@ -53,6 +55,9 @@ export class ToolbarController {
 
         if (!item) {
             alt.log(`No item in slot`);
+            return;
+        } else if (isFlagEnabled(item.behavior, ITEM_TYPE.IS_WEAPON)) {
+            alt.emitServer(SYSTEM_EVENTS.PLAYER_TOOLBAR_SET, slot, alt.Player.local.currentAmmo);
             return;
         }
 

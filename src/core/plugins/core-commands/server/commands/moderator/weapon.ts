@@ -24,7 +24,7 @@ const itemRef: Item = {
 };
 class WeaponCommands {
     @command('weapon', LocaleController.get(LOCALE_KEYS.COMMAND_WEAPON, '/weapon'), PERMISSIONS.ADMIN)
-    private static handleCommand(player: alt.Player, weaponName: string): void {
+    private static handleCommand(player: alt.Player, weaponName: string, ammo: number): void {
         const inv = Athena.player.inventory.getFreeInventorySlot(player);
 
         if (inv === null || inv.slot === null) {
@@ -46,6 +46,7 @@ class WeaponCommands {
         newItem.icon = weaponName.toLowerCase();
         newItem.slot = inv.slot;
         newItem.data.hash = weapon.hash;
+        newItem.data.ammo = ammo;
 
         if (weapon.stats && Object.keys(weapon.stats).length >= 1) {
             Object.keys(weapon.stats).forEach((key) => {

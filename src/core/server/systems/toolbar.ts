@@ -8,6 +8,7 @@ import { LocaleController } from '../../shared/locale/locale';
 import { isFlagEnabled } from '../../shared/utility/flags';
 import { Athena } from '../api/athena';
 import { ItemEffects } from './itemEffects';
+import { playerConst } from '../api/consts/constPlayer';
 
 export class ToolbarController {
     /**
@@ -16,7 +17,7 @@ export class ToolbarController {
      * @param {number} slot - The slot number of the item in the toolbar.
      * @returns The item that was equipped.
      */
-    static handleToolbarChange(player: alt.Player, slot: number): void {
+    static handleToolbarChange(player: alt.Player, slot: number, ammo?: number): void {
         if (slot <= -1 || slot >= 4) {
             return;
         }
@@ -33,7 +34,7 @@ export class ToolbarController {
 
         // Handle Weapon Switch
         if (isFlagEnabled(item.behavior, ITEM_TYPE.IS_WEAPON)) {
-            ToolbarController.handleWeaponEquip(player, item);
+            ToolbarController.handleWeaponEquip(player, item, ammo);
             return;
         }
 
@@ -54,18 +55,17 @@ export class ToolbarController {
      * @param {Item} item - The item that was selected.
      * @returns The function that handles the weapon equip.
      */
-    static handleWeaponEquip(player: alt.Player, item: Item) {
+    static handleWeaponEquip(player: alt.Player, item: Item, ammo: number) {
         player.removeAllWeapons();
 
         if (!item.data.hash) {
             Athena.player.emit.message(player, LocaleController.get(LOCALE_KEYS.WEAPON_NO_HASH));
             return;
         }
-
         // Handle first equip
         if (!player.lastToolbarData) {
             player.lastToolbarData = { equipped: true, slot: item.slot };
-            player.giveWeapon(item.data.hash, 9999, true);
+            player.giveWeapon(item.data.hash, item.data.ammo, true);
             Athena.player.emit.sound3D(player, 'item_equip', player);
             alt.emitClient(player, SYSTEM_EVENTS.PLAYER_RELOAD);
             return;
@@ -73,14 +73,14 @@ export class ToolbarController {
 
         if (player.lastToolbarData.slot !== item.slot) {
             player.lastToolbarData = { equipped: true, slot: item.slot };
-            player.giveWeapon(item.data.hash, 9999, true);
+            player.giveWeapon(item.data.hash, item.data.ammo, true);
             Athena.player.emit.sound3D(player, 'item_equip', player);
             alt.emitClient(player, SYSTEM_EVENTS.PLAYER_RELOAD);
             return;
         }
 
         if (!player.lastToolbarData.equipped) {
-            player.giveWeapon(item.data.hash, 9999, true);
+            player.giveWeapon(item.data.hash, item.data.ammo, true);
             player.lastToolbarData.equipped = true;
             Athena.player.emit.sound3D(player, 'item_equip', player);
             alt.emitClient(player, SYSTEM_EVENTS.PLAYER_RELOAD);
@@ -88,6 +88,12 @@ export class ToolbarController {
         }
 
         player.lastToolbarData.equipped = false;
+        if (ammo && ammo != item.data.ammo) {
+            item.data.ammo = ammo;
+            Athena.player.inventory.replaceToolbarItem(player, item);
+            Athena.player.sync.inventory(player);
+            Athena.player.save.field(player, 'toolbar', player.data.toolbar);
+        }
         Athena.player.emit.sound3D(player, 'item_remove', player);
     }
 
