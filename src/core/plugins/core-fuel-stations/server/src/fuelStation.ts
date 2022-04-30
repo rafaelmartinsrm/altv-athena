@@ -66,7 +66,7 @@ export class FuelStationSystem {
 
         const closestVehicle = getClosestEntity<alt.Vehicle>(player.pos, player.rot, alt.Vehicle.all, 2, true);
         if (!closestVehicle) {
-            Athena.player.emit.notification(player, LOCALE_FUEL_STATIONS.FUEL_TOO_FAR_FROM_PUMP);
+            Athena.player.emit.notification(player, LOCALE_FUEL_STATIONS.FUEL_VEHICLE_TOO_FAR);
             return;
         }
 
